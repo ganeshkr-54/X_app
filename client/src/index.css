@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+}
+
+#root {
+  max-width: 1200px;
+}
+
+@media screen and (max-width: 768px) {
+  body {
+    display: block;
+  }
+}
+

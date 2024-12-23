@@ -1,0 +1,535 @@
+Social Media App:
+
+Requirement:
+
+User:
+- Registeration
+- Login
+- SSO (Google, Github) (Optional)
+
+Post:
+- CRUD
+
+
+
+
+Features:
+- User can post images/videos/text on the web app
+- User can comment on that post
+- User can like that post
+- User can share that post
+- ReTweet the post
+- User can bookmark that post
+- UserA can follow UserB
+- UserA can unfollow UserB
+- Search the users
+- App Notification (optional)
+- Seeing other profile
+- Profile Picture, Cover Picture, Bio
+
+- Email Verification
+- SMS Verification (Twilio) (optional)
+
+
+API:
+User:::
+1. Registeration / Sign Up
+2. Login / Sign In 
+3. Verify the email 
+4. change password
+5. Logout 
+
+
+
+--------------------------------------------
+1. JWT token (expiry) with localStorage
+pros:
+stateless
+
+cons:
+you don't have to control to revoke
+
+fix:
+1. store in the database 
+
+--------------------------------------------
+2. JWT with Cookies (server can control the client cookies)
+revoke: cookies.clear()
+
+--------------------------------------------
+3. referesh token mechanism (multi signin devices)
+a. referesh token (6d): saving to database
+b. access token (1h)
+
+steps:
+user logs in : generate referesh and access token
+1d has been passed, client will use referesh token to 
+generate access token and client will receive new referesh token
+
+--------------------------------------------
+3. sessions (express-sessions)
+1. user login in the server will create a sessionId (database) and keep the userId, send sessionid to client
+2. client will send sessionId along with request
+
+--------------------------------------------
+SMTP
+
+--------------------------------------------
+Email Verification Process:
+
+localhost:3000/api/v1/user/emailverify/:token : update the isEmailVerified field in the database
+
+localhost:5173/emailverification/:token  : react url
+
+server: create a token and send the link(react url) of the email verify api to the client
+
+Steps:
+1. user register -> email token (UUID) -> store in db
+2. email token will be send to client through email (REACT URL)
+3. when client click on email link with that token, will search in db and update the 
+isEmailVerified to true
+
+
+--------------------------------------------
+Mails Service:
+mailtrap SaaS: setting up SMTP server 
+nodemailer: for sending mails
+mailgen: html template for mail
+
+
+--------------------------------------------
+user: 1000 posts
+db: find all the 1000 posts
+
+Pagination:
+client will ask two things
+1. page number
+2. limit on a single page
+
+PostS: 
+a
+b
+
+c
+d
+
+e
+f
+
+g
+h
+
+- get all post:  a,b,c,d,e,f,g,h (API call)
+Pagination:
+- page=1, limit=2:  a,b (API call)
+- page=2, limit=2:  c,d (API call)
+- page=3, limit=2:  e,f (API call)
+- page=4, limit=2:  h,g (API call)
+
+//--------------
+- page=1 , limit= 2 ::: skip: 0
+- page=2 , limit= 2 ::: skip: 2 
+- page=3 , limit= 2 ::: skip: 4
+- page=4 , limit= 2 ::: skip: 6
+
+
+//skip : (page - 1 ) * limit
+
+
+----------------------------------------------------
+
+all the post: isLiked, isBookmarked value
+
+use <PostCard /> to render individual posts
+profileImg,name, username, content, image/video, likeCnt, commentCnt,
+and isLiked
+ {
+    "_id": "670de9abe43b1fc26e8fc4b9",
+    "userId": "670884d5bb9c502c378230bc",
+    "mediaLocalPath": "",
+
+    "content": "hello code",
+    "image": string,
+    "video": string,
+    "likesCount": 0,
+    "isLiked": true,
+    "isBookmarked": true
+    "commentCount": 0,
+    "createdAt": "2024-10-15T04:03:55.655Z",
+    "user": {
+        "_id": "670884d5bb9c502c378230bc",
+        "name": "abc",
+        "username": "abc",
+        "profileImg": "http://localhost:3000/public/images/profile/profile-1728611594397-485392539.jpg"
+    }
+},
+
+
+
+
+----------------------------------------------------
+FINAL
+----------------------------------------------------
+
+Step 1: aggregation update:
+getAllPost (rida and samreen) DONE
+getAllPostByFollowing (irfan) DONE
+getAllBookmarkPosts  (sreekanth) DONE
+bookmarkSearch (bhuvan) DONE
+
+Step 2:
+//rida and samreen
+getAllComments object shape (DONE)
+{
+    commentId
+    content: string
+    user: {
+        _id
+        profile,
+        username,
+        name
+    }
+    createdAt
+}
+
+//bhuvan
+getFollowers object shape (DONE)
+{
+    _id
+    profile,
+    username,
+    name
+    bio
+    isFollowing
+}
+
+//sreekanth
+getFollowing object shape (DONE)
+{
+    _id
+    profile,
+    username,
+    name
+    bio
+    isFollowing
+}
+
+//irfan 
+add follow notification (DONE)
+getAllNotification object shape (DONE)
+{
+    type: like | comment | follow
+    postId: string
+    content: string
+    interactedBy: {
+        _id
+        profile,
+        username,
+        name
+    }
+    createdAt: Date
+}
+
+Step 3:
+optimize (can we reduce db calls)
+remove userFound from everywhere
+test
+
+----------------------------------------------------
+
+logger::
+morgan, winston npm logger
+
+security middlewares:
+
+
+----------------------------------------------------
+https://www.npmjs.com/package/react-infinite-scroller
+
+
+----------------------------------------------------
+performance:
+api server (express server):::
+> using pm2 you can run your server in cluster mode
+
+database query:::
+> reducing db calls 
+> imporove query performance (Database Indexing)
+Ex: 1000 records, match 1-Nth : indexing on that field
+
+Before Indexing on email:
+28ms
+4107 doc examined
+
+After Indexing on email:
+0ms
+226 doc examined
+
+Drawback:
+array: 
+1. push operations
+2. adding a element in between
+
+ 0 1 2
+[1,2,3]
+push > [1, 2, 3, 4] => 0, 1, 2, 3
+
+
+2. adding a element in between
+ 0  1  2  3
+[a, b, c, d]
+
+ 0  1  2  3  4
+[a, b, 1, c, d] 1000 
+
+
+######################################################################################
+
+Protocols: (Types of Backend Communication)
+
+http://
+http: REST APIs (client - server architecture)
+
+websockets: wss//
+- Persistant, 2 way communication protocol
+- Real Time, Full Duplex Connection 
+Ex: real time, chat, trading platform
+
+polling:
+short polling:
+> basic APIs where real time is not critical, where we make request to server on very short interval (2sec)
+high server load
+
+long polling:
+> basic APIs where real time is not critical, where we make request to server on long interval (15sec)
+effiecient way than short polling
+> semi-real time, websockets isn't required
+
+webhook:
+> event driven, request is being made by 3rd party on our server API(webhook)
+
+graphql:
+> under fetching and over fetching 
+> graphql: client can ask title, cast and the server will response only title and cast 
+
+grpc:
+> highly performance communication system
+> proto buffer
+
+Scaling:
+Diff types of scaling
+1. horizontal Scaling
+1. vertical Scaling
+
+how to scale api server 
+how to scale database
+
+cache
+
+monolithic: in a single project
+
+microservices: service divide into different projects
+feed service: for you feed and following feed
+
+----------------------------------------------------
+nodejs is single thread language (js achives concurrency using async[event loop])
+
+nodejs cluster: code level change
+> using pm2 you can run your server in cluster mode
+
+java is multi threading language (parallel execution): cpu create multiple threads
+
+
+----------------------------------------------------
+concurrency vs parallelism
+
+concurrency
+task A, B : A switch to B, again switch A
+
+parallelism
+worker that is being assigned to a task (thread)
+
+
+
+--------------------------------------------------------------------------------------------------------
+
+Pages:-
+
+Public:::
+Register Page 
+Login Page
+
+Private:::
+Home Page
+Notification Page
+Bookmarks Page
+PostDetails Page
+Settings Page
+
+
+------------------------------------------
+log in for the first time:
+token and userData store in the redux
+
+store the token in local storage to persist the token (logged In)
++ also verify the token when someone referesh the page
+
+
+------------------------------------------
+irfan:
+bookmarks Page (infinite scroll)
+Profile Page : fetch the profile data from the params(username) along with his posts(infinite scroll)
+scroller should be on main page 
+API: get other user data by username
+
+rida and samreen
+notification Page (infinite scroll)
+Followers Page: page that will show the list of followers(infinite scroll)
+Following Page: page that will show the list of following(infinite scroll)
+
+bhuvan and sreekanth
+home: following feed and for you feed (infinite scroll) + redux
+
+sreekanth:
+postDetails Page: comment infinite scroll
+sidebar needs to be fixed with the hidden part and the height of the window
+
+------------------------------------------
+for you
+following 
+bookmarks
+------------------------------------------
+POST APIs
+post creation
+comments creation
+
+likes 
+bookmark
+
+follow and unfollow functionality
+
+
+------------------------------------------
+TODO: 
+commentInputCard
+PostInputCard
+
+
+
+------------------------------------------
+28/10/2024 TODOS: 
+
+Ridaa and Samreen:
+- Notification Page: fix the UI Layout
+- Followers/Following Page: add infinite Scroll and test it
+
+Irfan:
+- CommentInput Card: 
+- PostInput Card: take post content and image/video (using html file upload) and send the data to backend using formData and update the state(redux)
+
+Bhuvan and Sreekanth:
+- Implement Home Page with for you and following Feed with infinite scroll and store the data in redux
+
+
+
+------------------------------------------
+Handling/Syncing the database and local/redux state:
+
+first way: 
+post the data
+refetch entire data and store in state
+
+second way: (comments)
+post the data,
+update the state with that posted data response
+
+------------------------------------------
+29/10/2024
+
+irfan
+bookmark search 
+edit profile: 
+frontend: edit profile button (ProfilePage)
+backend: api that will update the name and bio
+
+bhuvan
+likes bookmarks api in the following and for you(redux) , and bookmarks local state
+settings: change password
+
+sreekanth
+profile page should have followers, following count and bio
++ profile image upload + coverimage upload
+
+
+rida and samreen:
+email verification
+
+-----------------------------------------------------
+30/10/2024
+
+bhuvan
+likes bookmarks api in the following and for you(redux) , and bookmarks local state
+
+post like, bookmark and comment count need to be updated in both the feeds
+profile Detail update the comment count
+
+POST DELETE:
+post delete functionality (in post card check our post or not, if our show the delete button)
+redux update as well
+
+COMMENT DELETE:
+post details page (in comment card check our comment or not, if our show the delete button)
+redux update as well
+
+profile Page changes
+if our profile 
+    show edit button (open Modal, which updates the bio and name)
+if other profile 
+    show follow button (need to change the api to get isFollowing key [getUserDetails] function in user.controller )
+get the follower and following count  (need to change the api to get followingCount and followersCount key [getUserDetails] function in user.controller )
+
+FollowersPage and FolloweePage
+make changes in backend to view other profile follow list and following list
+ 
+
+-----------------------------------------------------
+access variables not present
+
+api errors
+    express validators, errors
+    example:
+            {
+            "statusCode": 400,
+            "msg": "Validation Error",
+            "success": false,
+            "errors": [
+                {
+                    "type": "field",
+                    "value": "671070367373b173c0ffd6c",
+                    "msg": "Invalid Mongoose Id",
+                    "path": "postId",
+                    "location": "params"
+                }
+            ]
+            }
+
+    401, 404 etc
+    {
+        "statusCode": 400,
+        "msg": "Validation Error",
+        "success": false,
+        "errors": [
+            {
+                "type": "field",
+                "value": "",
+                "msg": "Password is required",
+                "path": "password",
+                "location": "body"
+            }
+        ]
+    }
+
+network errors
+
+routing errors
+-----------------------------------------------------
