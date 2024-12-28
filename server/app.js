@@ -12,27 +12,19 @@ const app = express();
 app.use(CONFIG.STATIC_PATH, express.static('uploads'));
 
 
-var whitelist = [CONFIG.REACT_BASE_URL]
-
-// var corsOptions = {
-//     origin: function (origin, callback) {
-//         if (whitelist.indexOf(origin) !== -1) {
-//             callback(null, true)
-//         } else {
-//             callback(new Error('Not allowed by CORS'))
-//         }
-//     }
-// }
-
 var corsOptions = {
-    origin: '*', // Allow all origins temporarily
+    origin: '*',  // Allow all origins
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',  // Allow all HTTP methods
+    allowedHeaders: 'Content-Type,Authorization',  // Allow headers for requests
+    credentials: true,  // Allow credentials (cookies, HTTP authentication, etc.)
 };
+
+// cors setup
+app.use(cors(corsOptions))
 
 // body parser middleware
 app.use(express.json())
 
-// cors setup
- app.use(cors(corsOptions))
 
 // cookier parser middleware
 app.use(cookieParser())
