@@ -1,4 +1,4 @@
- services: 
+services: 
   client:
     build:
       context: client
@@ -23,13 +23,11 @@
     volumes:
       - ./server:/usr/src/app
       - /usr/src/app/node_modules
-   # depends_on:
-     # - mongo
     environment:
       NODE_ENV: development
       SALT_ROUNDS: 2
       PORT: 3000
-      DEV_MONGO_DB_URL: "mongodb+srv://sreekanthreddy:zjx8oAFdoKbqVZfJ@webstack.bcp82.mongodb.net"
+      DEV_MONGO_DB_URL: "mongodb://mongo:27017" # MongoDB container's hostname and port
       DEV_DB_NAME: THS_X
       DEV_JWT_SECRET_KEY: "THSC24"
       STAGING_JWT_SECRET_KEY: "THSC24"
@@ -39,26 +37,25 @@
       GMAIL_SMTP_USER: sreekanthreddy9381@gmail.com
       GMAIL_SMTP_PASS: "wytw uelp rthb uecb"
     networks:
-      #- express-mongo
       - react-express
     expose:
       - 3000
+    depends_on:
+      - mongo
 
-#  mongo:
-    # Since MongoDB is hosted on MongoDB Atlas, we don't need a container for it anymore.
-    # You can remove this service, as Atlas is being used instead.
-    # You can keep it in case you want to use a local MongoDB for testing.
-    # However, we will rely on the MongoDB Atlas connection URL in the backend service.
-#    restart: always
-#    image: mongo:4.2.0
-#    volumes:
-#      - mongo_data:/data/db
- #   networks:
- #     - express-mongo
+  mongo:
+    image: mongo:6.0.6 # Specify the desired MongoDB version
+    restart: always
+    container_name: mongodb
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - react-express
+    ports:
+      - 27017:27017
 
-#volumes:
- # mongo_data:
+volumes:
+  mongo_data:
 
- networks:
+networks:
   react-express:
-  #express-mongo:
