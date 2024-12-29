@@ -1,17 +1,25 @@
 import mongoose from "mongoose";
-import CONFIG from '../config/config.js'
+import CONFIG from '../config/config.js';
 
-const { MONGO_DB_URL, DB_NAME } = CONFIG
+const { MONGO_DB_URL, DB_NAME } = CONFIG;
 
 async function dbConnect() {
     try {
-        const DB_URI = `${MONGO_DB_URL}/${DB_NAME}`
-        await mongoose.connect(DB_URI);
-        console.log("DB Connected")
+        // Construct the connection URI
+        const DB_URI = `${MONGO_DB_URL}/${DB_NAME}`;
+        
+        // Connect to MongoDB with additional options for better compatibility
+        await mongoose.connect(DB_URI, {
+            useNewUrlParser: true,   // Use new URL parser
+            useUnifiedTopology: true, // Use the new unified topology engine
+        });
+        
+        console.log("✅ MongoDB connected successfully.");
     } catch (error) {
-        console.log("DB Connection Failed")
-        console.log(error)
+        console.error("❌ MongoDB connection failed:");
+        console.error(error.message);
+        process.exit(1); // Exit the process if DB connection fails
     }
 }
 
-export { dbConnect }
+export { dbConnect };
