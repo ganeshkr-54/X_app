@@ -1,0 +1,15 @@
+{
+    "test": {
+      "PORT": 3000,
+      "MONGODB_URI": "mongodb://mongo:27017/THS_X_Test"
+    },
+    "development": {
+      "PORT": 3000,
+      "MONGODB_URI": "mongodb://mongo:27017/THS_X"
+    },
+    "production": {
+      "PORT": 3000,
+      "MONGODB_URI": "mongodb://mongo:27017/THS_X_Prod"
+    }
+  }
+  

@@ -1,42 +1,41 @@
-services: 
+version: "3.8"
+
+services:
   client:
     build:
       context: client
       target: development
     ports:
-      - 5173:5173
+      - 3000:3000
     stdin_open: true
     volumes:
       - ./client:/usr/src/app
       - /usr/src/app/node_modules
     restart: always
     networks:
-     - react-express
+      - react-express
     depends_on:
       - server
 
   server:
-    restart: always
     build:
       context: server
       target: development
+    restart: always
     volumes:
       - ./server:/usr/src/app
       - /usr/src/app/node_modules
     environment:
       NODE_ENV: development
-      SALT_ROUNDS: 2
       PORT: 3000
-      DEV_MONGO_DB_URL: "mongodb://mongo:27017" # MongoDB container's hostname and port
-      DEV_DB_NAME: THS_X
-      DEV_JWT_SECRET_KEY: "THSC24"
-      STAGING_JWT_SECRET_KEY: "THSC24"
-      PROD_JWT_SECRET_KEY: "THSC24"
+      MONGODB_URI: "mongodb://mongo:27017/THS_X"
+      JWT_SECRET_KEY: "THSC24"
       GMAIL_SMTP_HOST: smtp.gmail.com
       GMAIL_SMTP_PORT: 587
       GMAIL_SMTP_USER: sreekanthreddy9381@gmail.com
       GMAIL_SMTP_PASS: "wytw uelp rthb uecb"
     networks:
+      - express-mongo
       - react-express
     expose:
       - 3000
@@ -44,13 +43,13 @@ services:
       - mongo
 
   mongo:
-    image: mongo:6.0.6 # Specify the desired MongoDB version
+    image: mongo:6.0.6
     restart: always
     container_name: mongodb
     volumes:
       - mongo_data:/data/db
     networks:
-      - react-express
+      - express-mongo
     ports:
       - 27017:27017
 
@@ -59,3 +58,4 @@ volumes:
 
 networks:
   react-express:
+  express-mongo:
