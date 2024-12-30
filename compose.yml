@@ -6,7 +6,7 @@ services:
       context: client
       target: development
     ports:
-      - 3000:3000
+      - 5173:5173
     stdin_open: true
     volumes:
       - ./client:/usr/src/app
